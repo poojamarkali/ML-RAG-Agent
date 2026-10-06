@@ -1,0 +1,22 @@
+[
+  {"id": "q1", "query": "In LDA, what are the important words in topic 8?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [364]},
+  {"id": "q2", "query": "What is k-Nearest Neighbors algorithm?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [35]},
+  {"id": "q3", "query": "What is scikit-learn and why is it used?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [19, 20]},
+  {"id": "q4", "query": "What is a main challenge faced in unsupervised learning?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [146]},
+  {"id": "q5", "query": "How does Decision Tree pruning prevent overfitting?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [88, 89]},
+  {"id": "q6", "query": "What is the difference between Lasso and Ridge regression?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [67, 68]},
+  {"id": "q7", "query": "How does the RBF kernel work in Support Vector Machines?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [111, 112, 113]},
+  {"id": "q8", "query": "What is method chaining in scikit-learn?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [82]},
+  {"id": "q9", "query": "How does the n_jobs parameter speed up random forest training?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [102]},
+  {"id": "q10", "query": "What are the downsides of kernelized support vector machines?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [118]},
+  {"id": "q11", "query": "What does StandardScaler do to each feature?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [147]},
+  {"id": "q12", "query": "What are principal components in PCA?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [155]},
+  {"id": "q13", "query": "Which tuning parameters does t-SNE have?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [182]},
+  {"id": "q14", "query": "What does DBSCAN stand for?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [201, 202]},
+  {"id": "q15", "query": "What is one-hot encoding of categorical variables?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [227]},
+  {"id": "q16", "query": "What are the benefits of cross-validation over a single train/test split?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [268]},
+  {"id": "q17", "query": "Why is doing feature selection before cross-validation a mistake?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [325]},
+  {"id": "q18", "query": "What is the intuition behind tf-idf?", "source": "Introduction to Machine Learning with Python.pdf", "expected_pages": [350]},
+  {"id": "out1", "query": "What is the capital of France?", "answerable": false},
+  {"id": "out2", "query": "What is a good recipe for chocolate cake?", "answerable": false}
+]

@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environment variables
+.env
+
+# Storage and Vector DB local directories
+data/qdrant_storage/
+data/cache/
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+.ipynb_checkpoints/
