@@ -5,6 +5,25 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
+# ---- chat app ---------------------------------------------------------------
+class AskRequest(BaseModel):
+    question: str = Field(examples=["What does StandardScaler do to each feature?"])
+    source: str | None = Field(default=None, description="Only answer from this PDF file name")
+
+
+class Source(BaseModel):
+    text: str
+    source: str | None
+    page: int | None
+    score: float | None = None
+
+
+class AskResponse(BaseModel):
+    answer: str
+    sources: list[Source]
+    cached: bool
+
+
 class Message(BaseModel):
     role: Literal["user", "assistant"]
     content: str
@@ -21,6 +40,7 @@ class ChatResponse(BaseModel):
     tools_used: list[dict[str, Any]]
 
 
+# ---- admin ------------------------------------------------------------------
 class SearchRequest(BaseModel):
     query: str = Field(examples=["What is the difference between Lasso and Ridge regression?"])
     k: int = Field(default=5, ge=1, le=20)
@@ -32,11 +52,6 @@ class SearchRequest(BaseModel):
 class Chunk(BaseModel):
     text: str
     metadata: dict[str, Any]
-
-
-class AskResponse(BaseModel):
-    answer: str
-    sources: list[Chunk]
 
 
 class SQLRequest(BaseModel):

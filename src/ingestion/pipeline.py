@@ -15,6 +15,7 @@ from langchain_core.documents import Document
 from config import settings
 from src.ingestion.chunking import chunk_pages
 from src.ingestion.loaders import load_pdf, load_sql
+from src.ingestion.suggestions import generate_suggestions, save_suggestions
 from src.retrieval.vector_store import delete_source, get_vector_store
 
 
@@ -36,6 +37,10 @@ def ingest_pdf(path: Path, strategy: str | None = None) -> int:
     chunks = chunk_pages(pages, strategy)
     store(chunks, path.name)
     print(f"{path.name}: {len(pages)} pages -> {len(chunks)} chunks ({strategy})")
+    try:  # suggestions are nice-to-have: an LLM hiccup shouldn't fail the ingestion
+        save_suggestions(path.name, generate_suggestions(chunks))
+    except Exception as e:
+        print(f"  [warn] could not generate suggested questions: {e}")
     return len(chunks)
 
 

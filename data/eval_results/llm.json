@@ -1,0 +1,185 @@
+{
+  "run_at": "2026-10-08T12:12:11",
+  "rows": [
+    {
+      "query": "In LDA, what are the important words in topic 8?",
+      "answerable": true,
+      "answer": "The provided documents do not list the specific important words for topic 8. They only state that \"topic 8 seems to capture award-related reviews\" [Introduction to Machine Learning with Python.pdf, page 364].",
+      "faithfulness": 5,
+      "relevance": 2,
+      "refused": true,
+      "reason": "The answer correctly notes that the context does not list the specific important words for topic 8, only that it captures award-related reviews, which is faithful to the provided context but does not fully answer the question."
+    },
+    {
+      "query": "What is k-Nearest Neighbors algorithm?",
+      "answerable": true,
+      "answer": "The k-Nearest Neighbors (k-NN) algorithm is described as \"arguably the simplest machine learning algorithm\" [Introduction to Machine Learning with Python.pdf, page 49].\n\nKey characteristics include:\n*   **Model Building:** Building the model consists only of storing the training dataset [Introduction to Machine Learning with Python.pdf, page 49].\n*   **Prediction:** To make a prediction for a new data point, the algorithm finds the closest data points in the training dataset, known as its \"nearest neighbors\" [Introduction to Machine Learning with Python.pdf, page 49].\n*   **The Parameter k:** The variable *k* signifies the number of neighbors to consider. Instead of using only the single closest neighbor, the algorithm can consider a fixed number *k* of neighbors (e.g., the closest three or five) [Introduction to Machine Learning with Python.pdf, page 35].\n*   **Classification Logic:** When considering more than one neighbor, the algorithm uses voting to assign a label by counting how many neighbors belong to each class and assigning the majority class among the *k*-nearest neighbors [Introduction to Machine Learning with Python.pdf, page 50].\n*   **Regression:** The algorithm is also used for regression, where it is implemented in the `KNeighborsRegressor` class [Introduction to Machine Learning with Python.pdf, page 56].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the k-NN algorithm using only information from the provided context, covering model building, prediction, the k parameter, classification voting, and regression usage."
+    },
+    {
+      "query": "What is scikit-learn and why is it used?",
+      "answerable": true,
+      "answer": "scikit-learn is an open-source, free-to-use Python library that is widely considered the most prominent tool for machine learning in the Python ecosystem [Introduction to Machine Learning with Python.pdf, page 19]. It is used because it contains a large array of state-of-the-art machine learning algorithms and provides comprehensive documentation for each one [Introduction to Machine Learning with Python.pdf, page 20].\n\nThe library is popular in both industry and academia, with a very active user community and a wealth of available tutorials and code snippets [Introduction to Machine Learning with Python.pdf, page 20]. It is designed to allow for quick iteration and easy interaction, and it integrates well with other scientific Python tools [Introduction to Machine Learning with Python.pdf, page 19, page 20]. Additionally, it is used to apply machine learning as a commodity tool in research and commercial applications without requiring advanced mathematical expertise or a PhD [Introduction to Machine Learning with Python.pdf, page 10].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes scikit-learn as an open-source Python library for machine learning and explains its uses, with all claims directly supported by the provided context."
+    },
+    {
+      "query": "What is a main challenge faced in unsupervised learning?",
+      "answerable": true,
+      "answer": "A major challenge in unsupervised learning is evaluating whether the algorithm learned something useful [Introduction to Machine Learning with Python.pdf, page 146]. Because unsupervised learning algorithms are applied to data that does not contain label information, it is difficult to determine the correct output or whether a model \u201cdid well\u201d [Introduction to Machine Learning with Python.pdf, page 146]. Additionally, these methods are generally harder to understand and evaluate compared to supervised learning [Introduction to Machine Learning with Python.pdf, page 17].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately reflects the context, citing the main challenge of evaluating whether the algorithm learned something useful due to the lack of label information, and correctly notes that these methods are harder to understand and evaluate."
+    },
+    {
+      "query": "How does Decision Tree pruning prevent overfitting?",
+      "answerable": true,
+      "answer": "Decision tree pruning prevents overfitting by simplifying the model so it does not fit the training data too closely, particularly by ignoring noise or single outlier points. The documents describe two common strategies for this:\n\n1.  **Pre-pruning (Stopping early):** This involves stopping the creation of the tree before it perfectly fits the training data. A specific method is limiting the depth of the tree (e.g., setting `max_depth=4`), which restricts the number of consecutive questions that can be asked [Introduction to Machine Learning with Python.pdf, page 88] [Introduction to Machine Learning with Python.pdf, page 89]. Limiting the depth decreases overfitting, which may lower accuracy on the training set but improves performance on the test set [Introduction to Machine Learning with Python.pdf, page 89].\n2.  **Post-pruning (Pruning):** This involves building the full tree and then removing or collapsing nodes that contain little information [Introduction to Machine Learning with Python.pdf, page 88].\n\nUnpruned trees are complex and prone to overfitting, often focusing on single outlier points far from other data points in their class, which creates decision boundaries that do not generalize well to new data [Introduction to Machine Learning with Python.pdf, page 88] [Introduction to Machine Learning with Python.pdf, page 89]. Even with pre-pruning, decision trees can still tend to overfit, which is why ensemble methods are often used instead [Introduction to Machine Learning with Python.pdf, page 97].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the two pruning strategies (pre-pruning and post-pruning) and their effects on overfitting, fully supported by the provided context."
+    },
+    {
+      "query": "What is the difference between Lasso and Ridge regression?",
+      "answerable": true,
+      "answer": "Based on the provided documents, the differences between Lasso and Ridge regression are as follows:\n\n*   **Regularization Type:** Ridge regression uses L2 regularization, while Lasso uses L1 regularization, which penalizes the sum of the absolute values of the coefficients [Introduction to Machine Learning with Python.pdf, page 67].\n*   **Coefficient Values:** In Ridge regression, all coefficients are typically nonzero, whereas in Lasso regression, some coefficients are exactly zero [Introduction to Machine Learning with Python.pdf, page 69].\n*   **Feature Selection:** Because Lasso sets some coefficients to exactly zero, it effectively ignores certain features, acting as a form of automatic feature selection [Introduction to Machine Learning with Python.pdf, page 67].\n*   **Interpretability:** The presence of exactly zero coefficients in Lasso often makes the model easier to interpret and helps reveal the most important features [Introduction to Machine Learning with Python.pdf, page 67].\n*   **Use Cases:** Ridge regression is usually the first choice in practice. However, Lasso is a better choice if you have a large amount of features and expect only a few of them to be important [Introduction to Machine Learning with Python.pdf, page 69].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the differences between Lasso and Ridge regression as described in the provided context, including regularization types, coefficient behavior, feature selection, interpretability, and use cases."
+    },
+    {
+      "query": "How does the RBF kernel work in Support Vector Machines?",
+      "answerable": true,
+      "answer": "Based on the provided documents, the Radial Basis Function (RBF) kernel, also known as the Gaussian kernel, works by mapping data into an infinite-dimensional feature space [Introduction to Machine Learning with Python.pdf, page 111]. It utilizes the \"kernel trick,\" a mathematical method that allows the model to learn a classifier in this higher-dimensional space without explicitly computing the new, potentially very large feature representation [Introduction to Machine Learning with Python.pdf, page 111]. Instead of computing the expansion, the kernel trick directly computes the scalar products (distances) of the data points for the expanded feature representation [Introduction to Machine Learning with Python.pdf, page 111].\n\nIn practice, the RBF kernel allows Support Vector Machines to create smooth, nonlinear decision boundaries rather than straight lines [Introduction to Machine Learning with Python.pdf, page 113]. The behavior of the RBF kernel is controlled by the `gamma` parameter, which determines the width of the Gaussian kernel and defines the scale of what it means for data points to be close together [Introduction to Machine Learning with Python.pdf, page 113].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes how the RBF kernel works (infinite-dimensional feature space, kernel trick, gamma parameter, nonlinear boundaries) and every claim is directly supported by the provided context."
+    },
+    {
+      "query": "What is method chaining in scikit-learn?",
+      "answerable": true,
+      "answer": "In scikit-learn, method chaining is the concatenation of method calls, which is possible because the `fit` method of all scikit-learn models returns `self` [Introduction to Machine Learning with Python.pdf, page 82]. This allows you to instantiate a model and fit it in one line, or to fit and predict in one line [Introduction to Machine Learning with Python.pdf, page 82]. For example:\n\n```python\nlogreg = LogisticRegression().fit(X_train, y_train)\n```\nor\n```python\ny_pred = logreg.fit(X_train, y_train).predict(X_test)\n```\n[Introduction to Machine Learning with Python.pdf, page 82].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately reflects the context, correctly defining method chaining as the concatenation of method calls enabled by fit returning self, and provides the exact examples from the source."
+    },
+    {
+      "query": "How does the n_jobs parameter speed up random forest training?",
+      "answerable": true,
+      "answer": "The `n_jobs` parameter allows you to specify the number of CPU cores to use for training a random forest [Introduction to Machine Learning with Python.pdf, page 102]. Because random forest training can be easily parallelized over many CPU cores, using more cores results in linear speed-ups; for example, using two cores makes the training twice as fast [Introduction to Machine Learning with Python.pdf, page 102]. You can set `n_jobs=-1` to utilize all available cores on your computer [Introduction to Machine Learning with Python.pdf, page 102]. However, specifying an `n_jobs` value larger than the actual number of cores will not provide additional speed [Introduction to Machine Learning with Python.pdf, page 102].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately reflects the context: n_jobs controls the number of CPU cores, enabling parallelization that yields linear speed-ups (e.g., 2 cores = 2x faster), n_jobs=-1 uses all cores, and setting it higher than the core count provides no benefit."
+    },
+    {
+      "query": "What are the downsides of kernelized support vector machines?",
+      "answerable": true,
+      "answer": "Based on the provided documents, the main downside of kernelized support vector machines (SVMs) is that they **do not scale well with the number of samples** [Introduction to Machine Learning with Python.pdf, page 118].\n\nSpecifically:\n*   While they work well on datasets with up to 10,000 samples, working with datasets of **100,000 samples or more** can become challenging in terms of **runtime and memory usage** [Introduction to Machine Learning with Python.pdf, page 118].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately reflects the context, which states that SVMs don't scale well with the number of samples and can become challenging in terms of runtime and memory usage for datasets of 100,000 or more."
+    },
+    {
+      "query": "What does StandardScaler do to each feature?",
+      "answerable": true,
+      "answer": "StandardScaler ensures that for each feature, the mean is 0 and the variance is 1, bringing all features to the same magnitude [Introduction to Machine Learning with Python.pdf, page 147].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer is directly supported by the context (page 147) and fully answers the question about what StandardScaler does to each feature."
+    },
+    {
+      "query": "What are principal components in PCA?",
+      "answerable": true,
+      "answer": "Principal components are the main directions of variance in the data, found by rotating the dataset so that the new features are statistically uncorrelated [Introduction to Machine Learning with Python.pdf, page 154]. In general, there are as many principal components as there are original features [Introduction to Machine Learning with Python.pdf, page 155]. Each principal component corresponds to a direction in the original data and is a combination of the original features [Introduction to Machine Learning with Python.pdf, page 160]. These components are stored in the `components_` attribute of the PCA object, where each row corresponds to one principal component [Introduction to Machine Learning with Python.pdf, page 160].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the definition of principal components as the main directions of variance, their relationship to the original features, and their storage in the components_ attribute, all of which are directly supported by the provided context."
+    },
+    {
+      "query": "Which tuning parameters does t-SNE have?",
+      "answerable": true,
+      "answer": "According to the documents, the t-SNE algorithm has tuning parameters including **perplexity** and **early_exaggeration** [Introduction to Machine Learning with Python.pdf, page 182].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer correctly identifies perplexity and early_exaggeration as t-SNE tuning parameters, which is directly supported by the retrieved context."
+    },
+    {
+      "query": "What does DBSCAN stand for?",
+      "answerable": true,
+      "answer": "DBSCAN stands for \u201cdensity-based spatial clustering of applications with noise\u201d [Introduction to Machine Learning with Python.pdf, page 201].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer correctly states that DBSCAN stands for \"density-based spatial clustering of applications with noise,\" which is directly supported by the retrieved context from page 201."
+    },
+    {
+      "query": "What is one-hot encoding of categorical variables?",
+      "answerable": true,
+      "answer": "One-hot encoding, also known as one-out-of-N encoding or dummy variables, is a method used to represent categorical variables by replacing them with one or more new binary features that can only have values of 0 or 1 [Introduction to Machine Learning with Python.pdf, page 227]. This approach is common because the binary values are compatible with linear binary classification formulas and other models in scikit-learn [Introduction to Machine Learning with Python.pdf, page 227].\n\nIn this encoding scheme, each category is represented by a different binary feature [Introduction to Machine Learning with Python.pdf, page 228]. For example, if a categorical variable has four possible values, it is converted into four separate columns where each row contains a single 1 and the rest are 0s, as shown in the \"workclass\" example where \"Government Employee\" is encoded as [1, 0, 0, 0] [Introduction to Machine Learning with Python.pdf, page 227]. This differs slightly from the dummy encoding often used in statistics, which typically encodes a categorical feature with $k$ possible values into $k-1$ features to avoid making the data matrix rank-deficient [Introduction to Machine Learning with Python.pdf, page 228]. One-hot encoding is particularly necessary for categorical features that have no inherent ordering, such as job classes, to ensure they are treated as discrete rather than continuous variables [Introduction to Machine Learning with Python.pdf, page 232].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the definition, mechanism, example, and distinction from statistical dummy encoding, all of which are directly supported by the provided context."
+    },
+    {
+      "query": "What are the benefits of cross-validation over a single train/test split?",
+      "answerable": true,
+      "answer": "Based on the provided documents, the benefits of using cross-validation instead of a single train/test split include:\n\n1.  **Mitigation of Random Splitting Bias:** A single random split can be \"lucky\" or \"unlucky,\" potentially placing all hard-to-classify examples in the training set (leading to unrealistically high test accuracy) or in the test set [Introduction to Machine Learning with Python.pdf, page 268]. Cross-validation helps avoid this instability [Introduction to Machine Learning with Python.pdf, page 287].\n2.  **Insight into Model Sensitivity:** Multiple splits provide information about how sensitive the model is to the specific selection of the training dataset, offering a range of performance (e.g., worst-case and best-case scenarios) rather than a single point estimate [Introduction to Machine Learning with Python.pdf, page 268].\n3.  **More Effective Data Usage:** Cross-validation allows for a larger proportion of the data to be used for training in each iteration compared to a standard 75/25 split. For example, five-fold cross-validation uses 80% of the data for training, and 10-fold uses 90%, which usually results in more accurate models [Introduction to Machine Learning with Python.pdf, page 268].\n\nThe main disadvantage noted is increased computational cost, as $k$ models are trained instead of one [Introduction to Machine Learning with Python.pdf, page 268].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately summarizes the three main benefits of cross-validation over a single split (mitigating random split bias, providing sensitivity information, and more effective data usage) as described in the provided context, and correctly notes the computational cost disadvantage."
+    },
+    {
+      "query": "Why is doing feature selection before cross-validation a mistake?",
+      "answerable": true,
+      "answer": "Doing feature selection before cross-validation is a mistake because it causes data leakage, leading to overly optimistic performance estimates.\n\nSpecifically:\n*   **Data Leakage:** If feature selection is performed on the entire dataset (including test folds) before cross-validation, the selection process can identify features that are correlated with the target variable in both the training and test portions of the data by chance [Introduction to Machine Learning with Python.pdf, page 325].\n*   **Incorrect Evaluation:** This leaks information from the test folds into the modeling process, meaning the cross-validation splits no longer correctly mirror how the model will encounter new, unseen data [Introduction to Machine Learning with Python.pdf, page 321].\n*   **Overly Optimistic Results:** This leakage results in cross-validation scores that are artificially high (e.g., an R2 score of 0.91 on random data), which does not reflect the model's true generalization ability [Introduction to Machine Learning with Python.pdf, page 325].\n*   **Correct Approach:** To avoid this, any process that extracts knowledge from the dataset, such as feature selection, should only be applied to the training portion of the data within each cross-validation fold, typically by using a Pipeline [Introduction to Machine Learning with Python.pdf, page 321], [Introduction to Machine Learning with Python.pdf, page 325].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer is fully supported by the retrieved context, accurately explaining data leakage, overly optimistic results, and the correct approach using pipelines within cross-validation."
+    },
+    {
+      "query": "What is the intuition behind tf-idf?",
+      "answerable": true,
+      "answer": "The intuition behind the term frequency\u2013inverse document frequency (tf\u2013idf) method is to assign a high weight to any term that appears frequently in a particular document but does not appear in many other documents within the corpus [Introduction to Machine Learning with Python.pdf, page 350]. The underlying logic is that if a word appears often in a specific document but is rare across the rest of the corpus, it is likely to be highly descriptive of that specific document's content [Introduction to Machine Learning with Python.pdf, page 350].",
+      "faithfulness": 5,
+      "relevance": 5,
+      "refused": false,
+      "reason": "The answer accurately reflects the intuition described in the context (high weight for terms frequent in a document but rare in the corpus) and directly answers the question."
+    },
+    {
+      "query": "What is the capital of France?",
+      "answerable": false,
+      "answer": "The provided documents do not cover this question.",
+      "faithfulness": 5,
+      "relevance": 1,
+      "refused": true,
+      "reason": "The answer correctly refuses because the retrieved context contains no information about the capital of France."
+    },
+    {
+      "query": "What is a good recipe for chocolate cake?",
+      "answerable": false,
+      "answer": "The provided documents do not cover this question. They focus on machine learning topics such as deep learning, multilayer perceptrons, and clustering algorithms [Introduction to Machine Learning with Python.pdf, page 118, 140, 202, 207].",
+      "faithfulness": 5,
+      "relevance": 1,
+      "refused": true,
+      "reason": "The answer correctly refuses because the retrieved context contains only machine learning content and no chocolate cake recipe, so it is fully faithful to the context but does not answer the question."
+    }
+  ]
+}

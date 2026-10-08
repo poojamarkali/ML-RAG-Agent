@@ -11,6 +11,11 @@
   uv run python run_server.py eval --chunking             # compare chunking strategies (slow)
   uv run python run_server.py eval --chunking --file "x.pdf" --pages 140-210 --only "fixed 600,agentic"
   uv run python run_server.py mcp                         # our MCP server over stdio
+
+Admin checks (see what the RAG pipeline does with a sample query):
+  uv run python run_server.py inspect "What does StandardScaler do?"
+  uv run python run_server.py stats                       # chunks per PDF, sizes, strategy
+  uv run python run_server.py chunks --file "x.pdf" --page 147
 """
 
 import argparse
@@ -23,7 +28,8 @@ from config import settings
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["ingest", "api", "ui", "eval", "mcp"])
+    parser.add_argument("command", choices=["ingest", "api", "ui", "eval", "mcp", "inspect", "stats", "chunks"])
+    parser.add_argument("question", nargs="?", help="inspect: the sample question")
     parser.add_argument("--file", help="ingest: only this PDF")
     parser.add_argument("--strategy", help="ingest: chunking strategy (default: config/chunking.json)")
     parser.add_argument("--sql", help="ingest: a SELECT whose rows become searchable chunks")
@@ -33,6 +39,7 @@ def main():
     parser.add_argument("--chunking", action="store_true", help="eval: compare chunking strategies")
     parser.add_argument("--pages", help="eval --chunking: page range like 140-210")
     parser.add_argument("--only", help='eval --chunking: comma-separated strategies, e.g. "fixed 600,semantic"')
+    parser.add_argument("--page", type=int, help="chunks: page number")
     args = parser.parse_args()
 
     if args.command == "ingest":
@@ -60,6 +67,7 @@ def main():
 
     elif args.command == "eval":
         from src.evaluation import chunking_eval, llm_eval, retrieval_eval
+        from src.evaluation.results import save_results
 
         if args.chunking:
             kwargs = {}
@@ -69,11 +77,34 @@ def main():
                 kwargs["pages"] = tuple(int(x) for x in args.pages.split("-"))
             if args.only:
                 kwargs["candidates"] = [s.strip() for s in args.only.split(",")]
-            chunking_eval.print_report(chunking_eval.compare_chunking(**kwargs))
+            rows = chunking_eval.compare_chunking(**kwargs)
+            save_results("chunking", rows)
+            chunking_eval.print_report(rows)
         else:
-            retrieval_eval.print_report(retrieval_eval.compare_strategies())
+            rows = retrieval_eval.compare_strategies()
+            save_results("retrieval", rows)
+            retrieval_eval.print_report(rows)
         if args.llm:
-            llm_eval.print_report(llm_eval.run_llm_eval())
+            rows = llm_eval.run_llm_eval()
+            save_results("llm", rows)
+            llm_eval.print_report(rows)
+
+    elif args.command == "inspect":
+        from src.evaluation import inspector
+
+        inspector.print_inspection(inspector.inspect_query(args.question or "What does StandardScaler do?"))
+
+    elif args.command == "stats":
+        from src.evaluation import inspector
+
+        for row in inspector.document_stats():
+            print(row)
+
+    elif args.command == "chunks":
+        from src.evaluation import inspector
+
+        for i, text in enumerate(inspector.page_chunks(Path(args.file).name, args.page), 1):
+            print(f"--- chunk {i} ({len(text)} chars)\n{text}\n")
 
     elif args.command == "mcp":
         from src.database.schema import init_db

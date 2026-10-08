@@ -15,10 +15,15 @@ PDFs ──┐
        ├─► loaders.py ─► chunking.py ─► pipeline.py ─────────► Qdrant (dense + BM25 vectors)
 SQL ───┘   (read)        (split)        (run + store)
 
-QUESTION ─► semantic cache ─► agent ─┬─ search_documents ─► hybrid search ─► re-rank ─► chunks
-                                     ├─ get_database_schema / query_database ─► SQL (read-only)
-                                     └─ any MCP tools from config/mcp_servers.json
+CHAT UI (/ask) ─► semantic cache ─► hybrid search (20) ─► re-rank (top 5) ─► LLM answer + [file, page]
+
+AGENT (/chat) ─┬─ search_documents ─► same retrieval as above
+               ├─ get_database_schema / query_database ─► SQL (read-only)
+               └─ any MCP tools from config/mcp_servers.json
 ```
+
+The chat UI uses plain RAG (`/ask`): it answers **only** from the retrieved chunks and refuses
+off-topic questions. The agent (`/chat`) is ready for when SQL and MCP tools are added to the app.
 
 ## Project layout
 
@@ -30,16 +35,18 @@ QUESTION ─► semantic cache ─► agent ─┬─ search_documents ─► hy
 | `src/ingestion/loaders.py` | **Read** a source → Documents (PDF pages, SQL rows) |
 | `src/ingestion/chunking.py` | **Split** Documents → chunks (fixed / semantic / agentic) |
 | `src/ingestion/pipeline.py` | **Run** loader → chunking → store in Qdrant |
+| `src/ingestion/suggestions.py` | LLM writes suggested questions per PDF at ingest time |
 | `src/retrieval/vector_store.py` | Qdrant client, embedding + re-ranker models |
 | `src/retrieval/search.py` | `search()`: hybrid / dense / sparse + optional re-ranking |
 | `src/retrieval/rag.py` | Plain RAG: retrieve → answer with citations |
 | `src/database/schema.py` | Tables + sample data |
 | `src/database/executor.py` | Schema description + read-only `run_query()` |
 | `src/agent/` | LLM choice, prompt, tools (+ MCP loader), agent, semantic cache |
-| `src/evaluation/` | Retrieval metrics, chunking comparison, LLM-as-judge, test questions |
-| `src/api/` | FastAPI endpoints + request/response models |
+| `src/evaluation/` | Retrieval metrics, chunking comparison, LLM-as-judge, inspector, test questions |
+| `src/api/main.py` | Endpoints the chat app uses (`/ask`, `/suggestions`, `/documents`) |
+| `src/api/admin.py` | Admin-only endpoints under `/admin` (inspect, stats, evaluation, upload) |
 | `src/mcp_server/server.py` | Exposes our tools as an MCP server |
-| `ui/app.py` | Streamlit UI (calls the API) |
+| `ui/app.py` | Streamlit chat for users: suggested questions, cited answers, sources |
 | `run_server.py` | One CLI for everything |
 
 ## Run locally
@@ -55,6 +62,19 @@ uv run python run_server.py ui                         # http://localhost:8501 (
 
 Local Qdrant (a folder) allows only one process at a time: stop the API before `ingest`/`eval`,
 or run the Qdrant server from docker and set `QDRANT_URL=http://localhost:6333`.
+
+## Admin: check how the RAG works (not visible to chat users)
+
+```bash
+uv run python run_server.py inspect "What does StandardScaler do?"   # every step for one question
+uv run python run_server.py stats                                     # chunks per PDF, sizes, strategy
+uv run python run_server.py chunks --file "Introduction to Machine Learning with Python.pdf" --page 147
+```
+
+The same tools are in the API under `/admin/...` (see http://localhost:8000/docs):
+`/admin/inspect`, `/admin/stats`, `/admin/chunks`, `/admin/search`, `/admin/eval/*`,
+`/admin/documents` (upload a PDF), `/admin/cache`. Set `ADMIN_API_KEY` in `.env` to require
+an `X-Admin-Key` header for all of them. Evaluation runs are saved in `data/eval_results/`.
 
 ## Run with Docker
 
@@ -72,6 +92,7 @@ docker compose exec api python run_server.py ingest
    then record the winner in `config/chunking.json`:
    `{"default": "fixed", "files": {"new_book.pdf": "semantic"}}`
 4. `uv run python run_server.py ingest --file "data/documents/new_book.pdf"`
+   (this also generates its suggested questions for the chat UI)
 
 ## Evaluation
 

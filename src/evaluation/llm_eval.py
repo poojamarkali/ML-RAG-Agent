@@ -49,7 +49,7 @@ def judge(question: str, answer: str, context: str) -> Grade:
 def run_llm_eval() -> list[dict]:
     rows = []
     for item in json.loads(DATASET_PATH.read_text()):
-        result = answer_question(item["query"])
+        result = answer_question(item["query"], use_cache=False)
         grade = judge(item["query"], result["answer"], result["context"])
         rows.append({"query": item["query"], "answerable": item.get("answerable", True),
                      "answer": result["answer"], **grade.model_dump()})

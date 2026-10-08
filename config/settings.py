@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     documents_dir: Path = BASE_DIR / "data" / "documents"
     mcp_servers_file: Path = BASE_DIR / "config" / "mcp_servers.json"
     chunking_config_file: Path = BASE_DIR / "config" / "chunking.json"
+    suggestions_file: Path = BASE_DIR / "data" / "suggestions.json"
+    eval_results_dir: Path = BASE_DIR / "data" / "eval_results"
+
+    # Admin endpoints (/admin/...): if set, requests need the header  X-Admin-Key: <this value>
+    admin_api_key: str | None = None
 
     # Semantic cache -- reuse an answer when a new question is this similar
     enable_semantic_cache: bool = True

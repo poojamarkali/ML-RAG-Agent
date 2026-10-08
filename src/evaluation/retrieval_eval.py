@@ -16,10 +16,10 @@ DATASET_PATH = Path(__file__).parent / "golden_dataset.json"
 
 # The retrieval setups we compare -- (name, kwargs passed to search())
 STRATEGIES = [
-    ("dense", {"mode": "dense", "rerank": False}),
-    ("bm25 (sparse)", {"mode": "sparse", "rerank": False}),
-    ("hybrid", {"mode": "hybrid", "rerank": False}),
-    ("hybrid + rerank", {"mode": "hybrid", "rerank": True}),
+    ("dense", {"mode": "dense", "rerank_results": False}),
+    ("bm25 (sparse)", {"mode": "sparse", "rerank_results": False}),
+    ("hybrid", {"mode": "hybrid", "rerank_results": False}),
+    ("hybrid + rerank", {"mode": "hybrid", "rerank_results": True}),
 ]
 
 

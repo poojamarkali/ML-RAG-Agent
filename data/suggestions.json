@@ -1,0 +1,10 @@
+{
+  "Introduction to Machine Learning with Python.pdf": [
+    "Why might a model perform well on training data but poorly on test data?",
+    "How does the alpha parameter affect Lasso and Ridge regression coefficients?",
+    "What is a limitation of PCA for data visualization compared to t-SNE?",
+    "Why might DBSCAN have a lower silhouette score than k-means?",
+    "How does binning transform a single feature into multiple features?",
+    "Why should you avoid tuning parameter ranges using the final test set?"
+  ]
+}

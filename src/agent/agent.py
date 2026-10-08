@@ -22,8 +22,8 @@ async def get_agent():
 async def ask_agent(question: str, history: list[dict] | None = None) -> dict:
     """history: earlier turns as [{"role": "user"|"assistant", "content": "..."}]."""
     # Cache only standalone questions -- a follow-up like "and its latency?" depends on history.
-    if not history and (cached := cache.lookup(question)):
-        return {"answer": cached, "cached": True, "tools_used": []}
+    if not history and (cached := cache.lookup(question, cache.AGENT_CACHE)):
+        return {**cached, "cached": True}
 
     agent = await get_agent()
     result = await agent.ainvoke({"messages": (history or []) + [{"role": "user", "content": question}]})
@@ -34,6 +34,7 @@ async def ask_agent(question: str, history: list[dict] | None = None) -> dict:
         {"tool": call["name"], "args": call["args"]}
         for m in messages if isinstance(m, AIMessage) for call in m.tool_calls
     ]
+    result = {"answer": answer, "tools_used": tools_used}
     if not history:
-        cache.save(question, answer)
-    return {"answer": answer, "cached": False, "tools_used": tools_used}
+        cache.save(question, result, cache.AGENT_CACHE)
+    return {**result, "cached": False}

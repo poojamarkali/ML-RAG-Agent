@@ -1,33 +1,37 @@
 """Semantic cache: if a new question means the same as one we already answered
-(cosine similarity >= threshold), return the saved answer and skip the LLM.
+(cosine similarity >= threshold), return the saved result and skip the LLM.
 Stored in its own small Qdrant collection."""
+
+import json
 
 from config import settings
 from src.retrieval.vector_store import create_collection, get_qdrant_client, get_vector_store
 
-CACHE_COLLECTION = "semantic_cache"
+RAG_CACHE, AGENT_CACHE = "rag_cache", "agent_cache"  # separate: they store different result shapes
 
 
-def _store():
-    create_collection(CACHE_COLLECTION, hybrid=False)
-    return get_vector_store("dense", collection=CACHE_COLLECTION)
+def _store(collection: str):
+    create_collection(collection, hybrid=False)
+    return get_vector_store("dense", collection=collection)
 
 
-def lookup(question: str) -> str | None:
+def lookup(question: str, collection: str = RAG_CACHE) -> dict | None:
+    """The saved result (e.g. {"answer": ..., "sources": [...]}) or None."""
     if not settings.enable_semantic_cache:
         return None
-    hits = _store().similarity_search_with_score(
+    hits = _store(collection).similarity_search_with_score(
         question, k=1, score_threshold=settings.semantic_cache_similarity_threshold
     )
-    return hits[0][0].metadata["answer"] if hits else None
+    return json.loads(hits[0][0].metadata["result"]) if hits else None
 
 
-def save(question: str, answer: str):
+def save(question: str, result: dict, collection: str = RAG_CACHE):
     if settings.enable_semantic_cache:
-        _store().add_texts([question], metadatas=[{"answer": answer}])
+        _store(collection).add_texts([question], metadatas=[{"result": json.dumps(result)}])
 
 
 def clear():
     client = get_qdrant_client()
-    if client.collection_exists(CACHE_COLLECTION):
-        client.delete_collection(CACHE_COLLECTION)
+    for collection in (RAG_CACHE, AGENT_CACHE):
+        if client.collection_exists(collection):
+            client.delete_collection(collection)
