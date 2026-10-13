@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # LLM -- "groq" or "bedrock"
     llm_provider: Literal["groq", "bedrock"] = "groq"
     groq_model: str = "qwen/qwen3.8-27b"
-    bedrock_model_id: str = "anthropic.claude-opus-5-5"
+    bedrock_model_id: str = "global.anthropic.claude-opus-5-5"  # Bedrock needs an inference-profile ID
     aws_region: str = "us-east-1"
 
     # Embeddings (dense + BM25 sparse for hybrid search) and the re-ranker

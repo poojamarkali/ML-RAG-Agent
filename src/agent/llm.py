@@ -13,4 +13,4 @@ def get_llm(temperature: float = 0):
     from langchain_aws import ChatBedrockConverse
 
     # No temperature here: newer Claude models on Bedrock reject sampling params.
-    return ChatBedrockConverse(model=settings.bedrock_model_id, region_name=settings.aws_region)
+    return ChatBedrockConverse(model=settings.bedrock_model_id, region_name=settings.aws_region, max_tokens=4096)

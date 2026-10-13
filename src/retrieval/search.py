@@ -42,8 +42,13 @@ def search(
     return rerank(query, retrieve_candidates(query, candidates, source, mode, collection), k)
 
 
+def citation(doc: Document) -> str:
+    """[file, page 12] for PDF chunks, [sql:benchmarks, row 3] for database rows."""
+    meta = doc.metadata
+    where = f"page {meta['page']}" if meta.get("page") is not None else f"row {meta.get('row')}"
+    return f"[{meta.get('source')}, {where}]"
+
+
 def format_docs(docs: list[Document]) -> str:
-    """Chunks -> one context string with [file, page] citations for the LLM."""
-    return "\n\n---\n\n".join(
-        f"[{d.metadata.get('source')}, page {d.metadata.get('page')}]\n{d.page_content}" for d in docs
-    )
+    """Chunks -> one context string with citations for the LLM."""
+    return "\n\n---\n\n".join(f"{citation(d)}\n{d.page_content}" for d in docs)
