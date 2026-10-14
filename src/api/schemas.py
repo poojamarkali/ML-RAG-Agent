@@ -34,9 +34,17 @@ class ChatRequest(BaseModel):
     history: list[Message] = []
 
 
+class SQLResult(BaseModel):
+    sql: str
+    rows: list[dict[str, Any]]
+    error: str | None = None
+
+
 class ChatResponse(BaseModel):
     answer: str
     cached: bool
+    sources: list[Source] = []       # PDF passages the agent used
+    sql: list[SQLResult] = []        # database queries the agent ran, with their rows
     tools_used: list[dict[str, Any]]
 
 

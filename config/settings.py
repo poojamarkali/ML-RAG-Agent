@@ -48,7 +48,7 @@ class Settings(BaseSettings):
 
     # Semantic cache -- reuse an answer when a new question is this similar
     enable_semantic_cache: bool = True
-    semantic_cache_similarity_threshold: float = 0.92
+    semantic_cache_similarity_threshold: float = 0.88  # paraphrases scored 0.90-0.92, different questions <= 0.78
 
     # API
     api_host: str = "0.0.0.0"

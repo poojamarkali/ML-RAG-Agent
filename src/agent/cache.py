@@ -5,7 +5,7 @@ Stored in its own small Qdrant collection."""
 import json
 
 from config import settings
-from src.retrieval.vector_store import create_collection, get_qdrant_client, get_vector_store
+from src.retrieval.vector_store import create_collection, get_vector_store, reset_collection
 
 RAG_CACHE, AGENT_CACHE = "rag_cache", "agent_cache"  # separate: they store different result shapes
 
@@ -31,7 +31,5 @@ def save(question: str, result: dict, collection: str = RAG_CACHE):
 
 
 def clear():
-    client = get_qdrant_client()
     for collection in (RAG_CACHE, AGENT_CACHE):
-        if client.collection_exists(collection):
-            client.delete_collection(collection)
+        reset_collection(collection)

@@ -23,6 +23,9 @@ def store(chunks: list[Document], source: str, collection: str | None = None):
     """Replace everything stored for `source` with these chunks."""
     delete_source(source, collection)
     get_vector_store(collection=collection).add_documents(chunks)
+    if collection is None:  # the knowledge base changed -> cached answers may be outdated
+        from src.agent import cache
+        cache.clear()
 
 
 def strategy_for(file_name: str) -> str:

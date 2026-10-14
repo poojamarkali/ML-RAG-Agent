@@ -16,12 +16,16 @@ from src.database.schema import init_db
 from src.ingestion.pipeline import list_documents
 from src.ingestion.suggestions import load_suggestions
 from src.retrieval.rag import answer_question
+from src.retrieval.search import search
 from src.retrieval.vector_store import get_qdrant_client
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
+    # Warm-up: load the embedding, BM25 and re-ranker models + Qdrant now, so the
+    # first user question doesn't pay several seconds of model loading.
+    search("warm up", k=1)
     yield
 
 
@@ -47,13 +51,13 @@ def suggestions():
     return load_suggestions()
 
 
+@app.post("/chat", response_model=ChatResponse, tags=["chat app"])
+async def chat(req: ChatRequest):
+    """Main chat: the agent answers from the PDFs (RAG) and/or the SQL database, with sources."""
+    return await ask_agent(req.question, [m.model_dump() for m in req.history])
+
+
 @app.post("/ask", response_model=AskResponse, tags=["chat app"])
 def ask(req: AskRequest):
-    """RAG answer from the documents only, with the source chunks it used."""
+    """Documents-only RAG (no database), optionally inside one PDF. Used when a single PDF is selected."""
     return answer_question(req.question, source=req.source)
-
-
-@app.post("/chat", response_model=ChatResponse, tags=["agent"])
-async def chat(req: ChatRequest):
-    """Agent: decides between document search, SQL and MCP tools (not used by the chat UI yet)."""
-    return await ask_agent(req.question, [m.model_dump() for m in req.history])

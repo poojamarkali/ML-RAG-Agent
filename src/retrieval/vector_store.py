@@ -84,7 +84,9 @@ def delete_source(source: str, collection: str | None = None):
 
 
 def reset_collection(collection: str | None = None):
+    """Remove every point but keep the collection. (Deleting the whole collection is unreliable
+    with local Qdrant on Windows: the files stay on disk and come back when it's recreated.)"""
     collection = collection or settings.qdrant_collection_name
     client = get_qdrant_client()
     if client.collection_exists(collection):
-        client.delete_collection(collection)
+        client.delete(collection, points_selector=models.FilterSelector(filter=models.Filter()))

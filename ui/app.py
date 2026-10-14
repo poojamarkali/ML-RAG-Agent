@@ -5,6 +5,7 @@ Run the api first, then: uv run python run_server.py ui"""
 import os
 
 import httpx
+import pandas as pd
 import streamlit as st
 
 API_URL = os.getenv("API_URL", "http://localhost:8000")
@@ -26,7 +27,7 @@ except httpx.HTTPError:
     st.stop()
 
 if "messages" not in st.session_state:
-    st.session_state.messages = []  # {"role", "content", "sources"}
+    st.session_state.messages = []  # {"role", "content", "sources", "sql"}
 
 
 def ask_suggestion(q: str):
@@ -39,7 +40,9 @@ with st.sidebar:
     st.header("📚 Documents")
     for doc in documents:
         st.caption(doc)
-    source = st.selectbox("Answer from", ["All documents"] + documents)
+    ALL = "All data (documents + database)"
+    # All data -> the agent (/chat): PDFs and the SQL database. One PDF -> documents-only RAG (/ask).
+    source = st.selectbox("Answer from", [ALL] + documents)
     if st.button("New chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
@@ -50,26 +53,31 @@ with st.sidebar:
 
 # ---- chat ---------------------------------------------------------------------
 st.title("📘 ML Study Assistant")
-st.caption("Answers only from your machine learning documents, with page references.")
+st.caption("Answers only from your ML documents and benchmark database, with sources.")
 
 
-def show_sources(sources: list[dict]):
+def show_sources(sources: list[dict], sql: list[dict]):
     # Only passages the re-ranker judged relevant (score > 0) -- an off-topic question shows none
     sources = [s for s in sources if (s.get("score") or 0) > 0]
-    if not sources:
-        return
-    with st.expander(f"Sources ({len(sources)})"):
-        for s in sources:
-            st.markdown(f"**{s['source']} — page {s['page']}**")
-            st.caption(s["text"][:400] + ("…" if len(s["text"]) > 400 else ""))
+    if sources:
+        with st.expander(f"📄 Document sources ({len(sources)})"):
+            for s in sources:
+                st.markdown(f"**{s['source']} — page {s['page']}**")
+                st.caption(s["text"][:400] + ("…" if len(s["text"]) > 400 else ""))
+    sql = [q for q in sql if q.get("rows")]  # only queries that actually returned data
+    if sql:
+        with st.expander(f"🗄️ Database queries ({len(sql)})"):
+            for q in sql:
+                st.code(q["sql"], language="sql")
+                st.dataframe(pd.DataFrame(q["rows"]), hide_index=True)
 
 
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
-        show_sources(m.get("sources", []))
+        show_sources(m.get("sources", []), m.get("sql", []))
 
-question = st.chat_input("Ask a question about your ML documents")
+question = st.chat_input("Ask about ML concepts or model benchmarks")
 question = question or st.session_state.pop("pending", None)
 
 # Suggested questions as buttons while the chat is empty
@@ -84,15 +92,18 @@ if question:
     with st.chat_message("user"):
         st.markdown(question)
     with st.chat_message("assistant"):
-        with st.spinner("Searching the documents..."):
-            payload = {"question": question, "source": None if source == "All documents" else source}
+        with st.spinner("Searching the documents and database..."):
             try:
-                res = api.post("/ask", json=payload)
+                if source == ALL:
+                    res = api.post("/chat", json={"question": question})
+                else:
+                    res = api.post("/ask", json={"question": question, "source": source})
                 res.raise_for_status()
                 result = res.json()
             except httpx.HTTPError as e:
-                result = {"answer": f"Sorry, something went wrong: {e}", "sources": []}
+                result = {"answer": f"Sorry, something went wrong: {e}"}
+        sources, sql = result.get("sources", []), result.get("sql", [])
         st.markdown(result["answer"])
-        show_sources(result["sources"])
-    st.session_state.messages.append({"role": "assistant", "content": result["answer"], "sources": result["sources"]})
+        show_sources(sources, sql)
+    st.session_state.messages.append({"role": "assistant", "content": result["answer"], "sources": sources, "sql": sql})
     st.rerun()
