@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Same as the notebooks: put .env into os.environ so LangChain / boto3 / Groq /
+# Same as the notebooks: put .env into os.environ so LangChain / Groq /
 # LangSmith pick up their own keys (GROQ_API_KEY, AWS_*, LANGSMITH_*) directly.
 load_dotenv(BASE_DIR / ".env")
 
