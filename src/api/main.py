@@ -53,8 +53,9 @@ def suggestions():
 
 @app.post("/chat", response_model=ChatResponse, tags=["chat app"])
 async def chat(req: ChatRequest):
-    """Main chat: the agent answers from the PDFs (RAG) and/or the SQL database, with sources."""
-    return await ask_agent(req.question, [m.model_dump() for m in req.history])
+    """Main chat: the agent answers from the PDFs (RAG) and/or the SQL database, with sources.
+    research=true also lets it use the Hugging Face MCP tools."""
+    return await ask_agent(req.question, [m.model_dump() for m in req.history], research=req.research)
 
 
 @app.post("/ask", response_model=AskResponse, tags=["chat app"])

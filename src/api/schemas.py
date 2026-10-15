@@ -32,6 +32,7 @@ class Message(BaseModel):
 class ChatRequest(BaseModel):
     question: str = Field(examples=["Explain Random Forest and show its accuracy on the breast cancer dataset."])
     history: list[Message] = []
+    research: bool = Field(default=False, description="Research mode: also use Hugging Face (MCP) tools")
 
 
 class SQLResult(BaseModel):
@@ -40,11 +41,17 @@ class SQLResult(BaseModel):
     error: str | None = None
 
 
+class ExternalResult(BaseModel):
+    tool: str                        # e.g. hub_repo_search (from the Hugging Face MCP server)
+    text: str
+
+
 class ChatResponse(BaseModel):
     answer: str
     cached: bool
     sources: list[Source] = []       # PDF passages the agent used
     sql: list[SQLResult] = []        # database queries the agent ran, with their rows
+    external: list[ExternalResult] = []  # results from external MCP tools (Research mode)
     tools_used: list[dict[str, Any]]
 
 

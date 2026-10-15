@@ -43,6 +43,12 @@ with st.sidebar:
     ALL = "All data (documents + database)"
     # All data -> the agent (/chat): PDFs and the SQL database. One PDF -> documents-only RAG (/ask).
     source = st.selectbox("Answer from", [ALL] + documents)
+    # Research mode: the agent may also search Hugging Face (MCP). Off = only your own data.
+    research = st.toggle("🔬 Research mode", disabled=source != ALL,
+                         help="Also search Hugging Face for real models, datasets and papers. "
+                              "Answers may then include information from outside your documents.")
+    if research:
+        st.caption("Research mode is on: answers can include Hugging Face results (labeled 🌐).")
     if st.button("New chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
@@ -56,7 +62,7 @@ st.title("📘 ML Study Assistant")
 st.caption("Answers only from your ML documents and benchmark database, with sources.")
 
 
-def show_sources(sources: list[dict], sql: list[dict]):
+def show_sources(sources: list[dict], sql: list[dict], external: list[dict]):
     # Only passages the re-ranker judged relevant (score > 0) -- an off-topic question shows none
     sources = [s for s in sources if (s.get("score") or 0) > 0]
     if sources:
@@ -70,12 +76,17 @@ def show_sources(sources: list[dict], sql: list[dict]):
             for q in sql:
                 st.code(q["sql"], language="sql")
                 st.dataframe(pd.DataFrame(q["rows"]), hide_index=True)
+    if external:
+        with st.expander(f"🌐 Hugging Face results ({len(external)}) — outside your documents"):
+            for r in external:
+                st.markdown(f"**{r['tool']}**")
+                st.markdown(r["text"][:1500] + ("…" if len(r["text"]) > 1500 else ""))
 
 
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
-        show_sources(m.get("sources", []), m.get("sql", []))
+        show_sources(m.get("sources", []), m.get("sql", []), m.get("external", []))
 
 question = st.chat_input("Ask about ML concepts or model benchmarks")
 question = question or st.session_state.pop("pending", None)
@@ -92,18 +103,20 @@ if question:
     with st.chat_message("user"):
         st.markdown(question)
     with st.chat_message("assistant"):
-        with st.spinner("Searching the documents and database..."):
+        with st.spinner("Searching Hugging Face, the documents and database..." if research
+                        else "Searching the documents and database..."):
             try:
                 if source == ALL:
-                    res = api.post("/chat", json={"question": question})
+                    res = api.post("/chat", json={"question": question, "research": research})
                 else:
                     res = api.post("/ask", json={"question": question, "source": source})
                 res.raise_for_status()
                 result = res.json()
             except httpx.HTTPError as e:
                 result = {"answer": f"Sorry, something went wrong: {e}"}
-        sources, sql = result.get("sources", []), result.get("sql", [])
+        sources, sql, external = result.get("sources", []), result.get("sql", []), result.get("external", [])
         st.markdown(result["answer"])
-        show_sources(sources, sql)
-    st.session_state.messages.append({"role": "assistant", "content": result["answer"], "sources": sources, "sql": sql})
+        show_sources(sources, sql, external)
+    st.session_state.messages.append({"role": "assistant", "content": result["answer"],
+                                      "sources": sources, "sql": sql, "external": external})
     st.rerun()

@@ -6,15 +6,17 @@ Each tool returns two things:
 The MCP server gets plain versions (text only) of the same tools.
 
 External MCP tools: add servers to config/mcp_servers.json and they are loaded
-automatically -- no code change needed. Example:
+automatically (used in Research mode). Secrets stay in .env: write "${HF_TOKEN}" in the
+JSON and it is replaced by the value from .env. Example:
 {
-  "filesystem": {"transport": "stdio", "command": "npx",
-                 "args": ["-y", "@modelcontextprotocol/server-filesystem", "./data"]},
-  "my_http_server": {"transport": "streamable_http", "url": "http://localhost:9000/mcp"}
+  "huggingface": {"transport": "streamable_http", "url": "https://huggingface.co/mcp",
+                  "headers": {"Authorization": "Bearer ${HF_TOKEN}"}}
 }
 """
 
 import json
+import os
+import re
 
 from langchain_core.tools import StructuredTool
 
@@ -84,8 +86,23 @@ def agent_tools() -> list:
     return tools
 
 
+def fill_env_vars(servers: dict) -> dict:
+    """Replace "${NAME}" with the value from .env. A header whose variable is empty is
+    dropped, so a server that works without a token (like Hugging Face) still connects."""
+    for server in servers.values():
+        headers = server.get("headers", {})
+        for name, value in list(headers.items()):
+            filled = re.sub(r"\$\{(\w+)\}", lambda m: os.getenv(m.group(1), ""), value)
+            if re.search(r"\$\{\w+\}", value) and not filled.replace("Bearer", "").strip():
+                del headers[name]
+            else:
+                headers[name] = filled
+    return servers
+
+
 async def load_mcp_tools() -> list:
-    """Tools from the external MCP servers listed in config/mcp_servers.json."""
+    """Tools from the external MCP servers in config/mcp_servers.json. If a server can't be
+    reached, the app keeps working without its tools instead of failing."""
     if not settings.mcp_servers_file.exists():
         return []
     servers = json.loads(settings.mcp_servers_file.read_text())
@@ -93,8 +110,8 @@ async def load_mcp_tools() -> list:
         return []
     from langchain_mcp_adapters.client import MultiServerMCPClient
 
-    return await MultiServerMCPClient(servers).get_tools()
-
-
-async def get_all_tools() -> list:
-    return agent_tools() + await load_mcp_tools()
+    try:
+        return await MultiServerMCPClient(fill_env_vars(servers)).get_tools()
+    except Exception as e:
+        print(f"[warn] could not load MCP tools, continuing without them: {e}")
+        return []

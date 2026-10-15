@@ -8,17 +8,21 @@ from langchain_core.messages import AIMessage, ToolMessage
 
 from src.agent import cache
 from src.agent.llm import get_llm
-from src.agent.prompts import SYSTEM_PROMPT
-from src.agent.tools import get_all_tools
+from src.agent.prompts import RESEARCH_PROMPT, SYSTEM_PROMPT
+from src.agent.tools import agent_tools, load_mcp_tools
 
-_agent = None
+# Two agents, built once on first use:
+#   normal   -> your PDFs + SQL database only (the default chat)
+#   research -> the same + external MCP tools (Hugging Face), when Research mode is on
+_agents: dict[str, object] = {}
 
 
-async def get_agent():
-    global _agent
-    if _agent is None:
-        _agent = create_agent(
-            get_llm(), await get_all_tools(), system_prompt=SYSTEM_PROMPT,
+async def get_agent(research: bool = False):
+    mode = "research" if research else "normal"
+    if mode not in _agents:
+        tools = agent_tools() + (await load_mcp_tools() if research else [])
+        _agents[mode] = create_agent(
+            get_llm(), tools, system_prompt=RESEARCH_PROMPT if research else SYSTEM_PROMPT,
             # Hard limits per question (some models over-search, which only adds seconds):
             # extra calls are blocked and the agent answers with what it already has.
             middleware=[
@@ -26,43 +30,53 @@ async def get_agent():
                 ToolCallLimitMiddleware(run_limit=8),
             ],
         )
-    return _agent
+    return _agents[mode]
 
 
-def collect_sources(messages) -> tuple[list[dict], list[dict]]:
+def collect_sources(messages) -> tuple[list[dict], list[dict], list[dict]]:
     """Go through the tool results and pull out what each tool used:
-    PDF passages (from search_documents) and SQL queries + rows (from query_database)."""
-    passages, sql = [], []
+    PDF passages (search_documents), SQL queries + rows (query_database), and results
+    from external MCP tools such as Hugging Face (everything else)."""
+    own_tools = {"search_documents", "query_database", "get_database_schema", "list_pdf_documents"}
+    passages, sql, external = [], [], []
     for m in messages:
-        if isinstance(m, ToolMessage) and m.artifact:
-            if m.name == "search_documents":
-                passages += m.artifact
-            elif m.name == "query_database":
-                sql.append(m.artifact)
+        if not isinstance(m, ToolMessage):
+            continue
+        if m.name == "search_documents" and m.artifact:
+            passages += m.artifact
+        elif m.name == "query_database" and m.artifact:
+            sql.append(m.artifact)
+        elif m.name not in own_tools:
+            external.append({"tool": m.name, "text": m.text[:3000]})
     # the same passage can come back from several searches -- keep it once
     unique = {(p["source"], p["page"], p["text"]): p for p in passages}
-    return list(unique.values()), sql
+    return list(unique.values()), sql, external
 
 
-async def ask_agent(question: str, history: list[dict] | None = None) -> dict:
+async def ask_agent(question: str, history: list[dict] | None = None, research: bool = False) -> dict:
     """history: earlier turns as [{"role": "user"|"assistant", "content": "..."}].
-    Returns {"answer", "sources" (PDF passages), "sql" (queries + rows), "tools_used", "cached"}."""
-    # Cache only standalone questions -- a follow-up like "and its latency?" depends on history.
-    if not history and (cached := cache.lookup(question, cache.AGENT_CACHE)):
+    research: also use external MCP tools (Hugging Face).
+    Returns {"answer", "sources" (PDF passages), "sql" (queries + rows),
+             "external" (MCP tool results), "tools_used", "cached"}."""
+    # Cache only standalone questions in normal mode -- follow-ups depend on history, and
+    # Research mode answers come from outside data that keeps changing.
+    use_cache = not history and not research
+    if use_cache and (cached := cache.lookup(question, cache.AGENT_CACHE)):
         return {**cached, "cached": True}
 
-    agent = await get_agent()
+    agent = await get_agent(research)
     output = await agent.ainvoke({"messages": (history or []) + [{"role": "user", "content": question}]})
 
     messages = output["messages"]
-    sources, sql = collect_sources(messages)
+    sources, sql, external = collect_sources(messages)
     result = {
         "answer": messages[-1].text,
         "sources": sources,
         "sql": sql,
+        "external": external,
         "tools_used": [{"tool": call["name"], "args": call["args"]}
                        for m in messages if isinstance(m, AIMessage) for call in m.tool_calls],
     }
-    if not history:
+    if use_cache:
         cache.save(question, result, cache.AGENT_CACHE)
     return {**result, "cached": False}
